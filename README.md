@@ -1,4 +1,4 @@
-### 2018-eccv Image Inpainting for Irregular Holes Using Partial Convolutions PaddlePaddle复现
+### 2018-eccv Image Inpainting for Irregular Holes Using Partial Convolutions PaddlePaddle版本复现
 
 这次复现主要参考了原论文和两个pytorch版本的源码：
 
@@ -12,7 +12,7 @@
 
 ![1](./images/1.png)
 
-其中第三列是论文中展示的效果，但其实自己复现的效果并没有这么优秀，下面是我复现的效果（pytorch版）：
+其中第三列是论文中展示的效果，但其实自己复现的效果并没有这么优秀，下面是我用非官方版pytorch复现的效果（从左到右三列所用的mask面积依次是0.1-0.2，0.2-0.3，0.3-0.4的）：
 
 ![2](./images/2.jpg)
 
@@ -37,4 +37,18 @@ mask_0.3-0.4: PSNR: 24.2461  SSIM: 0.8813  l1: 0.0264
 视觉效果：
 
 ![5](./images/5.jpg)
+
+
+
+#### 训练方法：
+
+```
+train.py
+```
+
+#### 测试方法：
+
+```
+test.py
+```
 
