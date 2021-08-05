@@ -10,20 +10,20 @@
 
 原文中的效果：
 
-![1](.\images\1.png)
+![1](./images/1.png)
 
 其中第三列是论文中展示的效果，但其实自己复现的效果并没有这么优秀，下面是我复现的效果（pytorch版）：
 
-![2](.\images\2.jpg)
+![2](./images/2.jpg)
 
 当时训练是batchsize为4，迭代了50万次，因为celeba_hq的训练集有3万张图片，大概就是66个epoch，之后又微调了50万次迭代。效果其实并没有论文那么好（只能说作者太会挑图了）。此外也有几篇其他有关image inpainting的论文做了和PartialConv的对比试验，他们的复现效果如下：
 
 下图是ICCV2019 Coherent Semantic Attention for Image Inpainting对PC做的复现
 
-![3](.\images\3.png)
+![3](./images/3.png)
 
 下图是IJCAI 2019 Coarse-to-Fine Image Inpainting via Region-wise Convolutions and Non-Local Correlation对PC的复现结果（其中第四列是PC的效果）：
-![4](.\images\4.png)
+![4](./images/4.png)
 
 可以看出在celeba的表现上都不是特别好。
 
@@ -36,5 +36,5 @@ mask_0.3-0.4: PSNR: 24.2461  SSIM: 0.8813  l1: 0.0264
 
 视觉效果：
 
-![5](.\images\5.jpg)
+![5](./images/5.jpg)
 
