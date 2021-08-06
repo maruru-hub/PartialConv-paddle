@@ -42,6 +42,7 @@ if __name__ == "__main__":
     image_len = len(de_paths )
 
     for i in tqdm(range(image_len)):
+        #可以用random的方法读取随机的一张mask
         path_m = mask_paths[0]
         path_d = de_paths[i]
 
