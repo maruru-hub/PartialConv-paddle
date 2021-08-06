@@ -1,24 +1,20 @@
-import math
-
 import paddle
 import paddle.nn as nn
-import paddle.nn.functional as F
 from paddle.vision import models
-import functools
 
 
 class VGG16FeatureExtractor(nn.Layer):
     def __init__(self):
         super(VGG16FeatureExtractor,self).__init__()
         vgg16 = models.vgg16(pretrained=True)
-        self.enc_1 = nn.Sequential(*vgg16.features[:5])  # torch.size([5,h,w])
+        self.enc_1 = nn.Sequential(*vgg16.features[:5])
         self.enc_2 = nn.Sequential(*vgg16.features[5:10])
         self.enc_3 = nn.Sequential(*vgg16.features[10:17])
 
         # fix the encoder
         for i in range(3):
-            for param in getattr(self, 'enc_{:d}'.format(i + 1)).parameters():  # getattr()用于返回一个对象属性值
-                param.requires_grad = False  # 不需要保存梯度
+            for param in getattr(self, 'enc_{:d}'.format(i + 1)).parameters():
+                param.requires_grad = False
 
     def forward(self, image):
         results = [image]
@@ -37,7 +33,6 @@ class PartialConv(nn.Layer):
         self.mask_conv = nn.Conv2D(1, 1, kernel_size,
                                    stride, padding, dilation, groups, bias_attr=False,
                                    weight_attr=nn.initializer.Constant(value=1.0))
-
         # mask is not updated
         for param in self.mask_conv.parameters():
             param.requires_grad = False
@@ -48,26 +43,10 @@ class PartialConv(nn.Layer):
         # C(X) = W^T * X + b, C(0) = b, D(M) = 1 * M + 0 = sum(M)
         # W^T* (M .* X) / sum(M) + b = [C(M .* X) – C(0)] / D(M) + C(0)
         input1=input*mask
-        output = self.input_conv(input1)  ##原来是input*mask，我改了
-
-        # if self.input_conv.bias is not None:
-        #     output_bias = self.input_conv.bias.view(1, -1, 1, 1).expand_as(
-        #         output)
-        # else:
-        #     output_bias = paddle.zeros_like(output)
-
+        output = self.input_conv(input1)
         with paddle.no_grad():
             output_mask = self.mask_conv(mask)
-
         new_mask = paddle.clip(output_mask, 0, 1)
-        # no_update_holes = output_mask == 0
-        # mask_sum = output_mask.masked_fill_(no_update_holes, 1.0)
-
-        # output_pre = (output - output_bias) / mask_sum + output_bias
-        # output = output_pre.masked_fill_(no_update_holes, 0.0)
-
-        # new_mask = paddle.ones_like(output)
-        # new_mask = new_mask.masked_fill_(no_update_holes, 0.0)
         return output, new_mask
 
 

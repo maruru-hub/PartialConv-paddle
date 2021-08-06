@@ -35,27 +35,6 @@ class BASE():
         self.opt_de = paddle.optimizer.Adam(learning_rate=opt.g_lr, beta1=opt.beta1, beta2=opt.beta2, parameters=self.net_DE.parameters())
 
 
-
-
-        if self.istrain:
-            if opt.continue_train:
-                pass
-                # print('loading pre-trained network!')
-                # d_statedict_model = paddle.load(opt.checkpoints_dir + "model/n_d.pdparams")
-                # D.set_state_dict(d_statedict_model)
-                #
-                # g_statedict_model = paddle.load(output_path + "model/n_g.pdparams")
-                # G.set_state_dict(g_statedict_model)
-                #
-                # d_statedict_opt = paddle.load(output_path + "model/n_d.pdopt")
-                # opt_d.set_state_dict(d_statedict_opt)
-                #
-                # g_statedict_opt = paddle.load(output_path + "model/n_g.pdopt")
-                # opt_g.set_state_dict(g_statedict_opt)
-                # # self.load_networks(self.netDE, 'DE', opt.which_epoch)
-                # # self.load_networks(self.netD, 'D', opt.which_epoch)
-                # # self.load_networks(self.netF, 'F', opt.which_epoch)
-
     def mask_process(self, mask):
         mask = mask[0][0]
         mask = paddle.unsqueeze(mask,0)
@@ -66,8 +45,6 @@ class BASE():
 
         self.Gt_DE = input_De
         self.input_DE = input_De
-        # print(mask[:,0,60:68,60:68])
-        # print(input_De[:,0,60:68,60:68])
         self.mask_global = (1-self.mask_process(mask))#black=1,white=0
         self.Gt_Local = input_De
         # define local area which send to the local discriminator
@@ -80,8 +57,6 @@ class BASE():
 
         # Do not set the mask regions as 0
         self.input_DE = self.input_DE*self.mask_global
-        # print(self.input_DE[:,0,62:70,62:70])
-        # print(self.mask_global[:,:,62:70,62:70])
 
     def forward(self):
 
@@ -129,31 +104,18 @@ class BASE():
         # Second, Reconstruction loss
         self.loss_dict=self.criterion(self.input_DE,self.mask_global,self.fake_out, self.Gt_DE)
 
-        # self.loss_G = self.loss_G_L1 + self.loss_G_GAN *0.2 + self.Perceptual_loss * 0.2 + self.Style_Loss *250
-        # self.loss_G = self.loss_L1 * self.opt.lambda_L1 + self.loss_G_GAN * self.opt.lambda_Gan + \
-        #               self.Perceptual_loss * self.opt.lambda_P + self.Style_Loss * self.opt.lambda_S + self.loss_coarse_L1*self.opt.lambda_L1
         self.loss_G = self.loss_G_GAN * self.opt.lambda_GAN + self.loss_dict['style'] * self.opt.lambda_style + \
                       self.loss_dict['hole'] * self.opt.lambda_hole + self.loss_dict['valid'] * self.opt.lambda_valid + \
                       self.loss_dict['prc'] * self.opt.lambda_prc + self.loss_dict['tv'] * self.opt.lambda_tv
 
-        # self.loss_G = self.loss_G_GAN * self.opt.lambda_GAN + self.loss_dict['style'] * self.opt.lambda_style + \
-        #               self.loss_dict['prc'] * self.opt.lambda_prc + self.loss_dict['tv'] * self.opt.lambda_tv + \
-        #               self.loss_dict['l1'] * self.opt.lambda_l1
-
         self.loss_G.backward()
 
     def set_requires_grad(self, nets, requires_grad=False):
-        """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
-        Parameters:
-            nets (network list)   -- a list of networks
-            requires_grad (bool)  -- whether the networks require gradients or not
-        """
         if not isinstance(nets, list):
             nets = [nets]
         for net in nets:
             if net is not None:
                 for param in net.parameters():
-                    # param.requires_grad = requires_grad
                     param.stop_gradient = requires_grad
     def optimize_parameters(self):
         self.forward()
@@ -198,11 +160,8 @@ class BASE():
                             ('F', self.loss_F_fake)
                             ])
 
-    # You can also see the Tensorborad
     def get_current_visuals(self):
         input_image = (self.input_DE + 1) / 2.0
-        # input_image2 = (self.input_DE2.data.cpu()+1) / 2.0
-        # input_image3 = (self.input_DE3.data.cpu() + 1) / 2.0
         fake_image = (self.fake_out + 1) / 2.0
         real_gt = (self.Gt_DE + 1) / 2.0
 

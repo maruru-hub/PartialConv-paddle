@@ -1,4 +1,3 @@
-import paddle
 import paddle.nn as nn
 from model.PartialConv2d import PCBActiv
 
@@ -55,20 +54,12 @@ class Encoder(nn.Layer):
         super(Encoder, self).__init__()
 
         # Unet structure
-
         self.ec_1 = PCBActiv(input_nc, ngf, bn=False, activ=None, sample='down-7')
         self.ec_2 = PCBActiv(ngf, ngf * 2,sample='down-5')
         self.ec_3 = PCBActiv(ngf * 2, ngf * 4, sample='down-5')
         self.ec_4 = PCBActiv(ngf * 4, ngf * 8, sample='down-3')
         self.ec_5 = PCBActiv(ngf * 8, ngf * 8, sample='down-3')
         self.ec_6 = PCBActiv(ngf * 8, ngf * 8, bn=False, sample='down-3')
-
-        # self.ec1 = UnetSkipConnectionEBlock(input_nc, ngf, use_dropout=use_dropout, outermost=True)
-        # self.ec2 = UnetSkipConnectionEBlock(ngf,ngf*2,use_dropout=use_dropout)
-        # self.ec3 = UnetSkipConnectionEBlock(ngf*2,ngf*4,use_dropout=use_dropout)
-        # self.ec4 = UnetSkipConnectionEBlock(ngf*4,ngf*8,use_dropout=use_dropout)
-        # self.ec5 = UnetSkipConnectionEBlock(ngf*8,ngf*8,use_dropout=use_dropout)
-        # self.ec6 = UnetSkipConnectionEBlock(ngf*8,ngf*8,use_dropout=use_dropout,innermost=True)
 
         blocks = []
         for _ in range(res_num):
@@ -86,21 +77,4 @@ class Encoder(nn.Layer):
         y_6, _ = self.ec_6(y_5, m_5)
         y_7 = self.middle(y_6)
         return y_1, y_2, y_3, y_4, y_5, y_7
-        # y1 = self.ec1(input)
-        # y2 = self.ec2(y1)
-        # y3 = self.ec3(y2)
-        # y4 = self.ec4(y3)
-        # y5 = self.ec5(y4)
-        # y6 = self.ec6(y5)
-        #
-        # y7 = self.middle(y6)
-        #
-        #
-        # return y1, y2, y3, y4, y5, y7
 
-
-if __name__ == '__main__':
-    En = Encoder(3, 64)
-    a = paddle.ones([1, 3, 256, 256])
-    b = paddle.ones([1, 1, 256, 256])
-    y_1, y_2, y_3, y_4, y_5, y_7 = En(a, b)

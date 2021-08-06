@@ -1,7 +1,7 @@
 import paddle
 import paddle.nn as nn
 from model.Encoder import Encoder
-#定义decoder
+
 # define the decoder skip connect
 class UnetSkipConnectionDBlock(nn.Layer):
     def __init__(self, inner_nc, outer_nc, outermost=False, innermost=False, use_dropout=False):
@@ -47,12 +47,3 @@ class Decoder(nn.Layer):
         y_6 = self.dc_6(paddle.concat([y_5, input_1], 1))
         out = y_6
         return out
-
-if __name__=='__main__':
-    En = Encoder(3, 64)
-    a = paddle.ones([1, 3, 256, 256])
-    b = paddle.ones([1, 1, 256, 256])
-    y_1, y_2, y_3, y_4, y_5, y_7 = En(a, b)
-    De = Decoder(8,3)
-    out=De(y_1, y_2, y_3, y_4, y_5, y_7)
-    print(out.shape)

@@ -62,14 +62,6 @@ class Spectralnorm(paddle.nn.Layer):
         out = self.layer(x)
         return out
 def build_norm_layer(norm_type='instance'):
-    """Return a normalization layer
-
-    Args:
-        norm_type (str) -- the name of the normalization layer: batch | instance | none
-
-    For BatchNorm, we do not use learnable affine parameters and track running statistics (mean/stddev).
-    For InstanceNorm, we do not use learnable affine parameters. We do not track running statistics.
-    """
     if norm_type == 'batch':
         norm_layer = functools.partial(
             nn.BatchNorm2D)
@@ -124,8 +116,3 @@ class NLayerDiscriminator(nn.Layer):
 
     def forward(self, input):
         return self.model(input)
-if __name__=='__main__':
-    De=NLayerDiscriminator(3)
-    a = paddle.ones([1,3,256,256])
-    b=De(a)
-    print(b.shape)
