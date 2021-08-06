@@ -39,7 +39,7 @@ if __name__ == "__main__":
                 epoch_iter += opt.batchSize
                 model.set_input(detail, mask)
                 model.optimize_parameters()
-                # display the training processing
+                # display the training processing 这部分可以注释掉
                 if total_steps % opt.display_freq == 0:
                     input, output, GT = model.get_current_visuals()
                     input = input.detach().numpy()[0].transpose((1, 2, 0)) * 255
@@ -51,7 +51,7 @@ if __name__ == "__main__":
                     input.save(rf"./results/{epoch}_{total_steps}_input.png")
                     GT.save(rf"./results/{epoch}_{total_steps}_GT.png")
                     output.save(rf"./results/{epoch}_{total_steps}_output.png")
-                #display the training loss
+                #display the training loss  这部分可以注释掉
                 if total_steps % opt.print_freq == 0:
                     errors = model.get_current_errors()
                     t = (time.time() - iter_start_time) / opt.batchSize
