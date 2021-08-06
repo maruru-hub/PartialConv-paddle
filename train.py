@@ -4,7 +4,7 @@ import os
 from model.base_model import BASE
 import paddle
 from paddle.io import Dataset, DataLoader
-# from visualdl import LogWriter
+from visualdl import LogWriter
 from options import OPT
 from PIL import Image
 import numpy as np
@@ -13,9 +13,6 @@ if __name__ == "__main__":
 
     opt = OPT()
     dataset = InpaintDateset(opt)
-
-    # dataloader = DataLoader(dataset, batch_size=opt.load_size, shuffle=True, num_workers=2)
-
     loader = DataLoader(dataset,
                         batch_size=opt.batchSize,
                         shuffle=True,
@@ -31,52 +28,35 @@ if __name__ == "__main__":
         os.mkdir(dir)
 
     # Start Training
-    # with LogWriter(logdir=dir) as writer:
-    for epoch in range(1):
-        epoch_start_time = time.time()
-        epoch_iter = 0
-        for detail, mask in loader():
-            print("begin training")
-            iter_start_time = time.time()
-            total_steps += opt.batchSize
-            epoch_iter += opt.batchSize
-            # print(detail[:,:,60:68,60:68])
-            # print(mask[:, :, 60:68, 60:68])
-            model.set_input(detail, mask)
-            model.optimize_parameters()
-            # display the training processing
-            # if total_steps % opt.display_freq == 0:
-            #     input, output, GT = model.get_current_visuals()
-            #     #image_out = paddle.concat([input, output, GT], 0)
-            #     # grid = paddle.vision.utils.make_grid(image_out)
-            #     input = input.detach().numpy()[0].transpose((1, 2, 0)) * 255
-            #     input = Image.fromarray(input.astype(np.uint8))
-            #     output = output.detach().numpy()[0].transpose((1, 2, 0)) * 255
-            #     output = Image.fromarray(output.astype(np.uint8))
-            #     GT = GT.detach().numpy()[0].transpose((1, 2, 0)) * 255
-            #     GT = Image.fromarray(GT.astype(np.uint8))
-            #     input.save(rf"./results/{epoch}_{total_steps}_input.png")
-            #     GT.save(rf"./results/{epoch}_{total_steps}_GT.png")
-            #     output.save(rf"./results/{epoch}_{total_steps}_output.png")
-            # display the training loss
-            # if total_steps % opt.print_freq == 0:
-            #     errors = model.get_current_errors()
-            #     t = (time.time() - iter_start_time) / opt.batchSize
-            #     # writer.add_scalar('G_GAN', value=errors['G_GAN'], step=total_steps + 1)
-            #     # writer.add_scalar('G_L1', value=errors['G_L1'], step=total_steps + 1)
-            #     # writer.add_scalar('D_loss', value=errors['D'], step=total_steps + 1)
-            #     # writer.add_scalar('F_loss', value=errors['F'], step=total_steps + 1)
-            #     print('iters: %d iteration time: %.10fsec' % (total_steps, t))
-            # # 定时存盘
-        # if epoch % opt.save_epoch_freq == 0:
-        #     model.save_epoch(epoch)
-        #     print('第['+str(epoch)+']轮模型保存。')
-
-    #     if epoch % opt.save_epoch_freq == 0:
-    #         print('saving the model at the end of epoch %d, iters %d' %
-    #               (epoch, total_steps))
-    #         model.save_networks(epoch)
-    #     print('End of epoch %d / %d \t Time Taken: %d sec' %
-    #           (epoch, opt.niter + opt.niter_decay, time.time() - epoch_start_time))
-    #     model.update_learning_rate()
-    # writer.close()
+    with LogWriter(logdir=dir) as writer:
+        for epoch in range(1):
+            epoch_start_time = time.time()
+            epoch_iter = 0
+            for detail, mask in loader():
+                print("begin training")
+                iter_start_time = time.time()
+                total_steps += opt.batchSize
+                epoch_iter += opt.batchSize
+                model.set_input(detail, mask)
+                model.optimize_parameters()
+                # display the training processing
+                if total_steps % opt.display_freq == 0:
+                    input, output, GT = model.get_current_visuals()
+                    input = input.detach().numpy()[0].transpose((1, 2, 0)) * 255
+                    input = Image.fromarray(input.astype(np.uint8))
+                    output = output.detach().numpy()[0].transpose((1, 2, 0)) * 255
+                    output = Image.fromarray(output.astype(np.uint8))
+                    GT = GT.detach().numpy()[0].transpose((1, 2, 0)) * 255
+                    GT = Image.fromarray(GT.astype(np.uint8))
+                    input.save(rf"./results/{epoch}_{total_steps}_input.png")
+                    GT.save(rf"./results/{epoch}_{total_steps}_GT.png")
+                    output.save(rf"./results/{epoch}_{total_steps}_output.png")
+                #display the training loss
+                if total_steps % opt.print_freq == 0:
+                    errors = model.get_current_errors()
+                    t = (time.time() - iter_start_time) / opt.batchSize
+                    writer.add_scalar('G_GAN', value=errors['G_GAN'], step=total_steps + 1)
+                    writer.add_scalar('G_L1', value=errors['G_L1'], step=total_steps + 1)
+                    writer.add_scalar('D_loss', value=errors['D'], step=total_steps + 1)
+                    writer.add_scalar('F_loss', value=errors['F'], step=total_steps + 1)
+                    print('iters: %d iteration time: %.10fsec' % (total_steps, t))
