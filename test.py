@@ -30,10 +30,10 @@ if __name__ == "__main__":
     opt = OPT()
     model = BASE(opt)
     print('读取存储的模型权重、优化器参数...')
-    d_statedict_model = paddle.load(opt.checkpoints_dir + "model/21_en.pdparams")
+    d_statedict_model = paddle.load(opt.checkpoints_dir + "model/en.pdparams")
     model.net_EN.set_state_dict(d_statedict_model)
 
-    g_statedict_model = paddle.load(opt.checkpoints_dir + "model/21_de.pdparams")
+    g_statedict_model = paddle.load(opt.checkpoints_dir + "model/de.pdparams")
     model.net_DE.set_state_dict(g_statedict_model)
     # en = torch.load("checkpoints/celeba-irregular2/65_net_EN.pth")
     # de = torch.load("checkpoints/celeba-irregular2/65_net_DE.pth")
