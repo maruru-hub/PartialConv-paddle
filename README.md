@@ -35,7 +35,21 @@
 
 ![6](./images/6.jpg)
 
+**与非官方版的对比：**
 
+​	下面几张图是我用非官方版的预训练模型在place2上测试的结果，测试方法是，随机从irregular mask的数据集中选取8张mask，从place2的测试集中随机选取8张图片，将修复结果拼接（第一行是input，第二行是mask，第三行是output，第四行是ground truth）。下面三张图是三次测试的结果。虽然视觉上效果不如我的paddle版本，但是因为几个客观问题的存在，这两个模型不具有可比性。首先，place2的语义本来就比人脸复杂，所以对于大面积的mask的效果不如人脸是正常的，其次是因为我做测试的时候是随机从1.2w张mask中选了几张做测试，不同的mask对结果的影响自然是不同的。
+
+​	但是其实这个方法本来就是18年的，不管是pytorch版本或者是我复现的版本，都存在方法本身的局限性，首先是修复图片中伪影严重，其次对于空白区域过大的mask会出现效果极差的情况。这两种情况可能是方法本身的问题，首先因为mask是逐层更新，每一层都会有新的mask，这会导致在mask区域过大的时候，在encoder的最后一层，mask中依然还有value为0的区域，这部分的语义是无法修复的，且通过skip connect可能会破坏decoder对图片的修复过程，其次是encoder的每一层的input都是上一层的output与上一层更新的new_mask做相乘，即:
+$$
+input_i=output_{i-1}*mask_{i-1}
+$$
+这会导致本身上一层对于mask为0区域修复的纹理和语义，在下一层会被破坏，导致语义和结构都会出现不连贯的情况（以及伪影）。partial conv这个方法其实挺有用的，我的想法是，如果想提高视觉效果和指标，最简单的操作应该是把partialconv作为残差加到encoder中。
+
+![result](./images/result.jpg)
+
+![result1](./images/result1.jpg)
+
+![result2](./images/result2.jpg)
 
 **训练方法：**
 
@@ -55,4 +69,12 @@ lr=0.0002训练了60w个iterate的结果，个人感觉再改变学习率微调�
 
 链接：https://pan.baidu.com/s/113xENcVYzcOfQQZJb-CYjA 
 提取码：pdpd
+
+**训练日志：**
+
+这里我用了paddlepaddle的visualDL来记录自己的日志，查看方法：
+
+```
+visualdl --logdir ./logs/Celeba
+```
 
