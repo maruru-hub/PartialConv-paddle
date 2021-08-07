@@ -35,21 +35,31 @@
 
 ![6](./images/6.jpg)
 
-**与非官方版的对比：**
+**与非官方版以及官方版的Place2数据集的对比：**
 
-​	下面几张图是我用非官方版的预训练模型在place2上测试的结果，测试方法是，随机从irregular mask的数据集中选取8张mask，从place2的测试集中随机选取8张图片，将修复结果拼接（第一行是input，第二行是mask，第三行是output，第四行是ground truth）。下面三张图是三次测试的结果。虽然视觉上效果不如我的paddle版本，但是因为几个客观问题的存在，这两个模型不具有可比性。首先，place2的语义本来就比人脸复杂，所以对于大面积的mask的效果不如人脸是正常的，其次是因为我做测试的时候是随机从1.2w张mask中选了几张做测试，不同的mask对结果的影响自然是不同的。
+​	因为官方版没有给出预训练的checkpoints，而非官方版又只给出了place2的预训练模型，所以除了celeba的视觉效果展示外，我又训练了一版place2的预训练模型进行对比。下面是分别在mask区域占10-20%，20-30%和30-40%的视觉效果和指标对比。因为官方版没有预训练模型，就只和非官方版进行了视觉效果对比。
 
-​	但是其实这个方法本来就是18年的，不管是pytorch版本或者是我复现的版本，都存在方法本身的局限性，首先是修复图片中伪影严重，其次对于空白区域过大的mask会出现效果极差的情况。这两种情况可能是方法本身的问题，首先因为mask是逐层更新，每一层都会有新的mask，这会导致在mask区域过大的时候，在encoder的最后一层，mask中依然还有value为0的区域，这部分的语义是无法修复的，且通过skip connect可能会破坏decoder对图片的修复过程，其次是encoder的每一层的input都是上一层的output与上一层更新的new_mask做相乘，即:
-$$
-input_i=output_{i-1}*mask_{i-1}
-$$
-这会导致本身上一层对于mask为0区域修复的纹理和语义，在下一层会被破坏，导致语义和结构都会出现不连贯的情况（以及伪影）。partial conv这个方法其实挺有用的，我的想法是，如果想提高视觉效果和指标，最简单的操作应该是把partialconv作为残差加到encoder中。
+**指标：**
 
-![result](./images/result.jpg)
+下表是指标的对比，其中paper代表的是原论文中展示的指标效果，un-pytorch展示的是非官方的预训练模型的指标效果，out-paddle是我用paddle版本复现的效果。
+
+![metrics](./images/metrics.png)
+
+**视觉对比：**
+
+下面三张图分别是我随机选了10-20%，20-30%和30-40%的mask各一张进行视觉对比。其中每张图的第一行是input，第二行是mask，第三行是非官方版的效果，第四行是paddle复现的效果，第五行是ground truth。关于测试图片，我也没有挑图，直接选取了测试集的前24张图分成三类，用三种mask处理来进行修复。
+
+mask:10-20%，测试集图片：第1-8张
+
+![result](./images/result2.jpg)
+
+mask:20-30%，测试集图片：第9-16张
 
 ![result1](./images/result1.jpg)
 
-![result2](./images/result2.jpg)
+mask:30-40%，测试集图片：第17-24张
+
+![result2](./images/result.jpg)
 
 **训练方法：**
 
@@ -65,9 +75,14 @@ test.py
 
 **预训练模型：**
 
-lr=0.0002训练了60w个iterate的结果，个人感觉再改变学习率微调会进一步提升效果
+这个是在celeba数据集下，lr=0.0002训练了60w个iterate的结果，个人感觉再改变学习率微调会进一步提升效果
 
-链接：https://pan.baidu.com/s/113xENcVYzcOfQQZJb-CYjA 
+链接：https://pan.baidu.com/s/1h6EQGLaHnrroZo91uTJXBw 
+提取码：pdpd
+
+这个是在Places2数据集下，lr=0.0002训练了60w个iterate的结果，个人感觉再改变学习率微调会进一步提升效果
+
+链接：https://pan.baidu.com/s/1INLUYXRpJD_ywlPzH3IUGQ 
 提取码：pdpd
 
 **训练日志：**
@@ -76,5 +91,9 @@ lr=0.0002训练了60w个iterate的结果，个人感觉再改变学习率微调�
 
 ```
 visualdl --logdir ./logs/Celeba
+```
+
+```
+visualdl --logdir ./logs/Place
 ```
 
