@@ -41,7 +41,7 @@
 
 **指标：**
 
-下表是指标的对比，其中paper代表的是原论文中展示的指标效果，un-pytorch展示的是非官方的预训练模型的指标效果，out-paddle是我用paddle版本复现的效果。
+下表是指标的对比，其中paper代表的是原论文中展示的指标效果，un-pytorch展示的是非官方的预训练模型的指标效果，our-paddle是我用paddle版本复现的效果。(PSNR和SSIM是越高越好,L1是越低越好)
 
 ![metrics](./images/metrics.png)
 
