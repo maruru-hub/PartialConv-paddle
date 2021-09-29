@@ -1,6 +1,6 @@
 
 
-# Paddle_PartialConv
+# Paddle_PConv
 
 Image Inpainting for Irregular Holes Using Partial Convolutions 论文复现
 
