@@ -1,4 +1,4 @@
-# Paddle_T2I
+# Paddle_PConv
 
 this is a paddle repo of Image Inpainting for Irregular Holes Using Partial Convolutions 
 
